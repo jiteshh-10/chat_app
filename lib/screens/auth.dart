@@ -31,16 +31,18 @@ class _AuthScreenState extends State<AuthScreen> {
     final isValid = _form.currentState!.validate();
 
     if (!isValid || !_isLogin && _selectedImage == null) {
+      // show error message ...
       return;
     }
 
     _form.currentState!.save();
+
     try {
       setState(() {
         _isAuthenticating = true;
       });
       if (_isLogin) {
-        await _firebase.signInWithEmailAndPassword(
+        final userCredentials = await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
       } else {
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
@@ -55,7 +57,7 @@ class _AuthScreenState extends State<AuthScreen> {
         final imageUrl = await storageRef.getDownloadURL();
 
         await FirebaseFirestore.instance
-            .collection('user')
+            .collection('users')
             .doc(userCredentials.user!.uid)
             .set({
           'username': _enteredUsername,
@@ -110,7 +112,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         children: [
                           if (!_isLogin)
                             UserImagePicker(
-                              onPickedImage: (pickedImage) {
+                              onPickImage: (pickedImage) {
                                 _selectedImage = pickedImage;
                               },
                             ),
@@ -133,23 +135,23 @@ class _AuthScreenState extends State<AuthScreen> {
                               _enteredEmail = value!;
                             },
                           ),
-                          if(!_isLogin)
-                          TextFormField(
-                            decoration:
-                                const InputDecoration(labelText: 'Username'),
-                            enableSuggestions: false,
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  value.trim().length < 4) {
-                                return 'Please enter at least 4 characters.';
-                              }
-                              return null;
-                            },
-                            onSaved: (value) {
-                              _enteredUsername = value!;
-                            },
-                          ),
+                          if (!_isLogin)
+                            TextFormField(
+                              decoration:
+                                  const InputDecoration(labelText: 'Username'),
+                              enableSuggestions: false,
+                              validator: (value) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value.trim().length < 4) {
+                                  return 'Please enter at least 4 characters.';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                _enteredUsername = value!;
+                              },
+                            ),
                           TextFormField(
                             decoration:
                                 const InputDecoration(labelText: 'Password'),

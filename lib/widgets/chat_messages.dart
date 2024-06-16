@@ -8,7 +8,7 @@ class ChatMessages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authenticatedUser = FirebaseAuth.instance.currentUser;
+    final authenticatedUser = FirebaseAuth.instance.currentUser!;
 
     return StreamBuilder(
       stream: FirebaseFirestore.instance
@@ -24,6 +24,7 @@ class ChatMessages extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }
+
         if (!chatSnapshots.hasData || chatSnapshots.data!.docs.isEmpty) {
           return const Center(
             child: Text('No messages found.'),
@@ -60,15 +61,15 @@ class ChatMessages extends StatelessWidget {
             if (nextUserIsSame) {
               return MessageBubble.next(
                 message: chatMessage['text'],
-                isMe: authenticatedUser!.uid == currentMessageUserId,
+                isMe: authenticatedUser.uid == currentMessageUserId,
               );
             } else {
-              MessageBubble.first(
-                  userImage: chatMessage['userImage'],
-                  username: chatMessage['username'],
-                  message: chatMessage['text'],
-                  isMe: authenticatedUser!.uid == currentMessageUserId,
-                  );
+              return MessageBubble.first(
+                userImage: chatMessage['userImage'],
+                username: chatMessage['username'],
+                message: chatMessage['text'],
+                isMe: authenticatedUser.uid == currentMessageUserId,
+              );
             }
           },
         );
